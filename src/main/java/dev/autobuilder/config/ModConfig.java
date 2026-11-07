@@ -14,5 +14,14 @@ public class ModConfig {
     public boolean smoothCamera = true;
     public boolean layerByLayer = true;
 
+    // Tall structure & climbing settings
+    public boolean climbMode = true;
+    public boolean autoJump = false;
+    public String climbBlock = "minecraft:scaffolding";
+    public boolean removeClimbBlocks = true;
+    public boolean showStandPoints = true;
+    public boolean pauseOnUnloadedChunk = true;
+    public boolean saveProgress = true;
+
     public ModConfig() {}
 }

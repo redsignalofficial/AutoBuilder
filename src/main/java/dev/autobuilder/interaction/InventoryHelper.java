@@ -125,4 +125,35 @@ public final class InventoryHelper {
 
         return bestSlot;
     }
+
+    public static Block findClimbingBlock(String preferredId) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientPlayerEntity player = client.player;
+        if (player == null) return null;
+
+        if (preferredId != null && !preferredId.isEmpty()) {
+            net.minecraft.util.Identifier id = net.minecraft.util.Identifier.tryParse(preferredId);
+            if (id != null) {
+                Block pref = net.minecraft.registry.Registries.BLOCK.get(id);
+                if (pref != net.minecraft.block.Blocks.AIR && hasItemForBlock(pref)) {
+                    return pref;
+                }
+            }
+        }
+
+        Block[] fallbacks = new Block[] {
+                net.minecraft.block.Blocks.SCAFFOLDING,
+                net.minecraft.block.Blocks.DIRT,
+                net.minecraft.block.Blocks.COBBLESTONE,
+                net.minecraft.block.Blocks.OAK_PLANKS,
+                net.minecraft.block.Blocks.STONE
+        };
+        for (Block b : fallbacks) {
+            if (hasItemForBlock(b)) {
+                return b;
+            }
+        }
+
+        return null;
+    }
 }

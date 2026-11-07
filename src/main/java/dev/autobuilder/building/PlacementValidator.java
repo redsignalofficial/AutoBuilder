@@ -20,7 +20,8 @@ public class PlacementValidator {
         OBSTACLE_FORBIDDEN,
         MISSING_SUPPORT,
         OUT_OF_REACH,
-        MISSING_MATERIAL
+        MISSING_MATERIAL,
+        CHUNK_NOT_LOADED
     }
 
     public static ValidationResult validate(BuildTask task) {
@@ -28,6 +29,12 @@ public class PlacementValidator {
         if (world == null) return ValidationResult.OUT_OF_REACH;
 
         BlockPos pos = task.getWorldPos();
+
+        // U4: Check if chunk is loaded
+        if (!world.isChunkLoaded(pos.getX() >> 4, pos.getZ() >> 4)) {
+            return ValidationResult.CHUNK_NOT_LOADED;
+        }
+
         BlockState currentState = world.getBlockState(pos);
         BlockState desiredState = task.getDesiredState();
 

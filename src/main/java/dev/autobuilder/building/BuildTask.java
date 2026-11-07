@@ -10,6 +10,7 @@ public class BuildTask {
     private final int layerY;
     private final boolean gravityBlock;
     private final boolean requiresSupport;
+    private BlockPos recommendedStandPos;
 
     public BuildTask(BlockPos worldPos, BlockState desiredState, int layerY) {
         this.worldPos = worldPos;
@@ -37,5 +38,13 @@ public class BuildTask {
 
     public boolean isRequiresSupport() {
         return requiresSupport;
+    }
+
+    public BlockPos getRecommendedStandPos() {
+        return recommendedStandPos;
+    }
+
+    public void setRecommendedStandPos(BlockPos recommendedStandPos) {
+        this.recommendedStandPos = recommendedStandPos;
     }
 }

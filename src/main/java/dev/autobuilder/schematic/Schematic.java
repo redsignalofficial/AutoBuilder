@@ -119,6 +119,20 @@ public class Schematic {
         return counts;
     }
 
+    public Map<Block, Integer> getLayerMaterialCounts(int y) {
+        Map<Block, Integer> counts = new HashMap<>();
+        if (y < 0 || y >= height) return counts;
+        for (int z = 0; z < length; z++) {
+            for (int x = 0; x < width; x++) {
+                BlockState state = getBlockState(x, y, z);
+                if (state != null && !state.isAir()) {
+                    counts.put(state.getBlock(), counts.getOrDefault(state.getBlock(), 0) + 1);
+                }
+            }
+        }
+        return counts;
+    }
+
     public void rotate(BlockRotation rotation) {
         if (rotation == BlockRotation.NONE) return;
 

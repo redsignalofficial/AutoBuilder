@@ -37,6 +37,8 @@ public class AutoBuilderCommands {
                 .then(ClientCommandManager.literal("pause").executes(ctx -> pauseBuild(ctx.getSource())))
                 .then(ClientCommandManager.literal("resume").executes(ctx -> resumeBuild(ctx.getSource())))
                 .then(ClientCommandManager.literal("stop").executes(ctx -> stopBuild(ctx.getSource())))
+                .then(ClientCommandManager.literal("cleanup").executes(ctx -> triggerCleanup(ctx.getSource())))
+                .then(ClientCommandManager.literal("climb").executes(ctx -> toggleClimb(ctx.getSource())))
                 .then(ClientCommandManager.literal("config").executes(ctx -> openConfig()))
                 .then(ClientCommandManager.literal("save")
                         .then(ClientCommandManager.argument("name", StringArgumentType.word())
@@ -59,6 +61,8 @@ public class AutoBuilderCommands {
                 .then(ClientCommandManager.literal("pause").executes(ctx -> pauseBuild(ctx.getSource())))
                 .then(ClientCommandManager.literal("resume").executes(ctx -> resumeBuild(ctx.getSource())))
                 .then(ClientCommandManager.literal("stop").executes(ctx -> stopBuild(ctx.getSource())))
+                .then(ClientCommandManager.literal("cleanup").executes(ctx -> triggerCleanup(ctx.getSource())))
+                .then(ClientCommandManager.literal("climb").executes(ctx -> toggleClimb(ctx.getSource())))
                 .then(ClientCommandManager.literal("config").executes(ctx -> openConfig()))
                 .then(ClientCommandManager.literal("save")
                         .then(ClientCommandManager.argument("name", StringArgumentType.word())
@@ -184,6 +188,19 @@ public class AutoBuilderCommands {
             }
             source.sendFeedback(TextConstants.success("Loaded schematic: " + schem.getName() + " (" + schem.getWidth() + "x" + schem.getHeight() + "x" + schem.getLength() + ")"));
         });
+        return 1;
+    }
+
+    private static int triggerCleanup(FabricClientCommandSource source) {
+        BuildManager.getInstance().triggerCleanup();
+        return 1;
+    }
+
+    private static int toggleClimb(FabricClientCommandSource source) {
+        dev.autobuilder.config.ModConfig cfg = dev.autobuilder.config.ConfigManager.get();
+        cfg.climbMode = !cfg.climbMode;
+        dev.autobuilder.config.ConfigManager.save();
+        source.sendFeedback(TextConstants.info("Climb Mode is now: " + (cfg.climbMode ? "§aEnabled" : "§cDisabled")));
         return 1;
     }
 

@@ -19,88 +19,147 @@ public class ConfigScreen extends Screen {
     protected void init() {
         ModConfig cfg = ConfigManager.get();
         int centerX = this.width / 2;
-        int startY = 45;
-        int btnW = 260;
+        int startY = 40;
+        int btnW = 150;
         int btnH = 20;
-        int spacing = 22;
+        int spacing = 24;
 
+        int col1 = centerX - 160;
+        int col2 = centerX + 10;
+
+        // Column 1: Core Mechanics
         // Camera Speed
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Camera Speed: §b" + (int) cfg.cameraRotationSpeed + "°/tick"),
+                Text.literal("Cam Speed: §b" + (int) cfg.cameraRotationSpeed + "°/tick"),
                 btn -> {
                     cfg.cameraRotationSpeed = (cfg.cameraRotationSpeed >= 40.0f) ? 5.0f : cfg.cameraRotationSpeed + 5.0f;
                     this.clearAndInit();
                 }
-        ).dimensions(centerX - 130, startY, btnW, btnH).build());
+        ).dimensions(col1, startY, btnW, btnH).build());
 
         // Placement Delay
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Placement Delay: §b" + cfg.placementDelayTicks + " ticks"),
+                Text.literal("Place Delay: §b" + cfg.placementDelayTicks + " ticks"),
                 btn -> {
                     cfg.placementDelayTicks = (cfg.placementDelayTicks >= 10) ? 1 : cfg.placementDelayTicks + 1;
                     this.clearAndInit();
                 }
-        ).dimensions(centerX - 130, startY + spacing, btnW, btnH).build());
+        ).dimensions(col1, startY + spacing, btnW, btnH).build());
 
         // Mining Delay
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Mining Delay: §b" + cfg.miningDelayTicks + " ticks"),
+                Text.literal("Mine Delay: §b" + cfg.miningDelayTicks + " ticks"),
                 btn -> {
                     cfg.miningDelayTicks = (cfg.miningDelayTicks >= 10) ? 1 : cfg.miningDelayTicks + 1;
                     this.clearAndInit();
                 }
-        ).dimensions(centerX - 130, startY + spacing * 2, btnW, btnH).build());
+        ).dimensions(col1, startY + spacing * 2, btnW, btnH).build());
 
         // Max Reach
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal(String.format("Max Reach: §b%.1f blocks", cfg.maxBuildReach)),
+                Text.literal(String.format("Reach: §b%.1f blocks", cfg.maxBuildReach)),
                 btn -> {
                     cfg.maxBuildReach = (cfg.maxBuildReach >= 4.8) ? 3.0 : cfg.maxBuildReach + 0.3;
                     this.clearAndInit();
                 }
-        ).dimensions(centerX - 130, startY + spacing * 3, btnW, btnH).build());
+        ).dimensions(col1, startY + spacing * 3, btnW, btnH).build());
 
-        // Break Obstacles
+        // Clear Obstacles
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Clear Obstacles: " + (cfg.breakObstacles ? "§aEnabled" : "§cDisabled")),
+                Text.literal("Obstacles: " + (cfg.breakObstacles ? "§aMine" : "§cIgnore")),
                 btn -> {
                     cfg.breakObstacles = !cfg.breakObstacles;
                     this.clearAndInit();
                 }
-        ).dimensions(centerX - 130, startY + spacing * 4, btnW, btnH).build());
+        ).dimensions(col1, startY + spacing * 4, btnW, btnH).build());
 
         // Break Containers
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Break Containers (Chests/Entities): " + (cfg.breakContainers ? "§cAllowed" : "§aProtected")),
+                Text.literal("Containers: " + (cfg.breakContainers ? "§cBreak" : "§aProtect")),
                 btn -> {
                     cfg.breakContainers = !cfg.breakContainers;
                     this.clearAndInit();
                 }
-        ).dimensions(centerX - 130, startY + spacing * 5, btnW, btnH).build());
-
-        // Pause on Missing
-        this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Pause on Missing Blocks: " + (cfg.pauseOnMissing ? "§aON" : "§cOFF")),
-                btn -> {
-                    cfg.pauseOnMissing = !cfg.pauseOnMissing;
-                    this.clearAndInit();
-                }
-        ).dimensions(centerX - 130, startY + spacing * 6, btnW, btnH).build());
+        ).dimensions(col1, startY + spacing * 5, btnW, btnH).build());
 
         // Smooth Camera
         this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Smooth Camera Movement: " + (cfg.smoothCamera ? "§aON" : "§cOFF")),
+                Text.literal("Smooth Cam: " + (cfg.smoothCamera ? "§aON" : "§cOFF")),
                 btn -> {
                     cfg.smoothCamera = !cfg.smoothCamera;
                     this.clearAndInit();
                 }
-        ).dimensions(centerX - 130, startY + spacing * 7, btnW, btnH).build());
+        ).dimensions(col1, startY + spacing * 6, btnW, btnH).build());
 
-        // Save & Back
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("§aSave & Return"), btn -> {
+        // Column 2: Climbing & Tall Structures
+        // Climb Mode
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Climb Mode: " + (cfg.climbMode ? "§aEnabled" : "§cDisabled")),
+                btn -> {
+                    cfg.climbMode = !cfg.climbMode;
+                    this.clearAndInit();
+                }
+        ).dimensions(col2, startY, btnW, btnH).build());
+
+        // Auto Jump
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Auto Jump: " + (cfg.autoJump ? "§aAuto" : "§eManual")),
+                btn -> {
+                    cfg.autoJump = !cfg.autoJump;
+                    this.clearAndInit();
+                }
+        ).dimensions(col2, startY + spacing, btnW, btnH).build());
+
+        // Remove Climb Blocks
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Cleanup Climb: " + (cfg.removeClimbBlocks ? "§aAuto" : "§cKeep")),
+                btn -> {
+                    cfg.removeClimbBlocks = !cfg.removeClimbBlocks;
+                    this.clearAndInit();
+                }
+        ).dimensions(col2, startY + spacing * 2, btnW, btnH).build());
+
+        // Pause on Unloaded Chunk
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Pause Unloaded: " + (cfg.pauseOnUnloadedChunk ? "§aON" : "§cOFF")),
+                btn -> {
+                    cfg.pauseOnUnloadedChunk = !cfg.pauseOnUnloadedChunk;
+                    this.clearAndInit();
+                }
+        ).dimensions(col2, startY + spacing * 3, btnW, btnH).build());
+
+        // Save Progress
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Save Progress: " + (cfg.saveProgress ? "§aON" : "§cOFF")),
+                btn -> {
+                    cfg.saveProgress = !cfg.saveProgress;
+                    this.clearAndInit();
+                }
+        ).dimensions(col2, startY + spacing * 4, btnW, btnH).build());
+
+        // Pause on Missing
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Pause Missing: " + (cfg.pauseOnMissing ? "§aON" : "§cOFF")),
+                btn -> {
+                    cfg.pauseOnMissing = !cfg.pauseOnMissing;
+                    this.clearAndInit();
+                }
+        ).dimensions(col2, startY + spacing * 5, btnW, btnH).build());
+
+        // Layer-by-layer
+        this.addDrawableChild(ButtonWidget.builder(
+                Text.literal("Layer by Layer: " + (cfg.layerByLayer ? "§aON" : "§cOFF")),
+                btn -> {
+                    cfg.layerByLayer = !cfg.layerByLayer;
+                    this.clearAndInit();
+                }
+        ).dimensions(col2, startY + spacing * 6, btnW, btnH).build());
+
+        // Bottom: Save & Return
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("§a✔ Save & Return"), btn -> {
             ConfigManager.save();
             if (client != null) client.setScreen(parent);
-        }).dimensions(centerX - 75, this.height - 28, 150, 20).build());
+        }).dimensions(centerX - 100, this.height - 28, 200, 20).build());
     }
 
     @Override
