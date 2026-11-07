@@ -1,5 +1,6 @@
 package dev.autobuilder.client;
 
+import dev.autobuilder.AutoBuilder;
 import dev.autobuilder.building.BuildManager;
 import dev.autobuilder.camera.CameraController;
 import dev.autobuilder.client.render.BuildProgressHud;
