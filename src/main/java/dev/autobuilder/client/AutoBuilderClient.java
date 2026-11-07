@@ -33,6 +33,7 @@ public class AutoBuilderClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        AutoBuilder.LOGGER.info("[{}] Initializing AutoBuilder client...", AutoBuilder.MOD_NAME);
         ConfigManager.load();
 
         KeyBinding.Category category = KeyBinding.Category.create(Identifier.of("autobuilder", "main"));
@@ -111,6 +112,8 @@ public class AutoBuilderClient implements ClientModInitializer {
 
         // Client Commands
         ClientCommandRegistrationCallback.EVENT.register(AutoBuilderCommands::register);
+
+        AutoBuilder.LOGGER.info("[{}] AutoBuilder client initialized successfully.", AutoBuilder.MOD_NAME);
     }
 
     private static BlockPos getTargetOrPlayerPos(MinecraftClient client) {
