@@ -54,7 +54,7 @@ public class BuildOrderCalculator {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientPlayerEntity player = client.player;
         if (player != null) {
-            Vec3d playerPos = player.getPos();
+            BlockPos playerPos = player.getBlockPos();
             tasks.sort(Comparator.comparingInt(BuildTask::getLayerY)
                     .thenComparingDouble(task -> task.getWorldPos().getSquaredDistance(playerPos)));
         }

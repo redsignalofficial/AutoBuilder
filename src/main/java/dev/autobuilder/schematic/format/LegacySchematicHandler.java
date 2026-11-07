@@ -3,8 +3,10 @@ package dev.autobuilder.schematic.format;
 import dev.autobuilder.schematic.Schematic;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.nbt.*;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtSizeTracker;
 
 import java.io.File;
 import java.io.IOException;
@@ -113,17 +115,17 @@ public class LegacySchematicHandler implements ISchematicHandler {
 
     @Override
     public Schematic read(File file) throws IOException {
-        NbtCompound root = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimited());
+        NbtCompound root = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes());
 
-        int width = root.getShort("Width") & 0xFFFF;
-        int height = root.getShort("Height") & 0xFFFF;
-        int length = root.getShort("Length") & 0xFFFF;
+        int width = root.getShort("Width", (short) 0) & 0xFFFF;
+        int height = root.getShort("Height", (short) 0) & 0xFFFF;
+        int length = root.getShort("Length", (short) 0) & 0xFFFF;
 
         String name = file.getName().replaceAll("(?i)\\.schematic$", "");
         Schematic schematic = new Schematic(name, width, height, length);
 
-        byte[] blockIds = root.getByteArray("Blocks");
-        byte[] addBlocks = root.contains("AddBlocks") ? root.getByteArray("AddBlocks") : null;
+        byte[] blockIds = root.getByteArray("Blocks").orElse(new byte[0]);
+        byte[] addBlocks = root.getByteArray("AddBlocks").orElse(null);
 
         for (int y = 0; y < height; y++) {
             for (int z = 0; z < length; z++) {
@@ -149,16 +151,14 @@ public class LegacySchematicHandler implements ISchematicHandler {
             }
         }
 
-        if (root.contains("TileEntities", NbtElement.LIST_TYPE)) {
-            NbtList list = root.getList("TileEntities", NbtElement.COMPOUND_TYPE);
-            for (int i = 0; i < list.size(); i++) {
-                NbtCompound te = list.getCompound(i);
-                int x = te.getInt("x");
-                int y = te.getInt("y");
-                int z = te.getInt("z");
-                if (schematic.isInBounds(x, y, z)) {
-                    schematic.setBlockEntityNbt(x, y, z, te.copy());
-                }
+        NbtList list = root.getListOrEmpty("TileEntities");
+        for (int i = 0; i < list.size(); i++) {
+            NbtCompound te = list.getCompoundOrEmpty(i);
+            int x = te.getInt("x", 0);
+            int y = te.getInt("y", 0);
+            int z = te.getInt("z", 0);
+            if (schematic.isInBounds(x, y, z)) {
+                schematic.setBlockEntityNbt(x, y, z, te.copy());
             }
         }
 

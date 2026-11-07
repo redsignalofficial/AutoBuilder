@@ -37,7 +37,7 @@ public final class BlockUtils {
                 || block instanceof DetectorRailBlock
                 || block instanceof PoweredRailBlock
                 || block instanceof ActivatorRailBlock
-                || block instanceof PressurePlateBlock;
+                || block instanceof AbstractPressurePlateBlock;
     }
 
     public static boolean isValuableContainer(BlockState state, World world, BlockPos pos) {

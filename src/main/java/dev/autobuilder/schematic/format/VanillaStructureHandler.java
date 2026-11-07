@@ -22,42 +22,38 @@ public class VanillaStructureHandler implements ISchematicHandler {
 
     @Override
     public Schematic read(File file) throws IOException {
-        NbtCompound root = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimited());
+        NbtCompound root = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes());
 
-        NbtList sizeList = root.getList("size", NbtElement.INT_TYPE);
-        int width = sizeList.getInt(0);
-        int height = sizeList.getInt(1);
-        int length = sizeList.getInt(2);
+        NbtList sizeList = root.getListOrEmpty("size");
+        int width = sizeList.getInt(0, 1);
+        int height = sizeList.getInt(1, 1);
+        int length = sizeList.getInt(2, 1);
 
         String name = file.getName().replaceAll("(?i)\\.nbt$", "");
         Schematic schematic = new Schematic(name, width, height, length);
 
         List<BlockState> palette = new ArrayList<>();
-        if (root.contains("palette", NbtElement.LIST_TYPE)) {
-            NbtList paletteList = root.getList("palette", NbtElement.COMPOUND_TYPE);
-            for (int i = 0; i < paletteList.size(); i++) {
-                NbtCompound entry = paletteList.getCompound(i);
-                palette.add(parsePaletteEntry(entry));
-            }
+        NbtList paletteList = root.getListOrEmpty("palette");
+        for (int i = 0; i < paletteList.size(); i++) {
+            NbtCompound entry = paletteList.getCompoundOrEmpty(i);
+            palette.add(parsePaletteEntry(entry));
         }
 
-        if (root.contains("blocks", NbtElement.LIST_TYPE)) {
-            NbtList blockList = root.getList("blocks", NbtElement.COMPOUND_TYPE);
-            for (int i = 0; i < blockList.size(); i++) {
-                NbtCompound blockEntry = blockList.getCompound(i);
-                int stateIndex = blockEntry.getInt("state");
-                NbtList posList = blockEntry.getList("pos", NbtElement.INT_TYPE);
-                int x = posList.getInt(0);
-                int y = posList.getInt(1);
-                int z = posList.getInt(2);
+        NbtList blockList = root.getListOrEmpty("blocks");
+        for (int i = 0; i < blockList.size(); i++) {
+            NbtCompound blockEntry = blockList.getCompoundOrEmpty(i);
+            int stateIndex = blockEntry.getInt("state", 0);
+            NbtList posList = blockEntry.getListOrEmpty("pos");
+            int x = posList.getInt(0, 0);
+            int y = posList.getInt(1, 0);
+            int z = posList.getInt(2, 0);
 
-                if (stateIndex >= 0 && stateIndex < palette.size()) {
-                    schematic.setBlockState(x, y, z, palette.get(stateIndex));
-                }
+            if (stateIndex >= 0 && stateIndex < palette.size()) {
+                schematic.setBlockState(x, y, z, palette.get(stateIndex));
+            }
 
-                if (blockEntry.contains("nbt", NbtElement.COMPOUND_TYPE)) {
-                    schematic.setBlockEntityNbt(x, y, z, blockEntry.getCompound("nbt").copy());
-                }
+            if (blockEntry.contains("nbt")) {
+                schematic.setBlockEntityNbt(x, y, z, blockEntry.getCompoundOrEmpty("nbt").copy());
             }
         }
 
@@ -76,7 +72,6 @@ public class VanillaStructureHandler implements ISchematicHandler {
 
         Map<BlockState, Integer> stateToId = new LinkedHashMap<>();
         NbtList paletteList = new NbtList();
-
         NbtList blocksList = new NbtList();
 
         for (int y = 0; y < schematic.getHeight(); y++) {
@@ -117,18 +112,18 @@ public class VanillaStructureHandler implements ISchematicHandler {
     }
 
     private static BlockState parsePaletteEntry(NbtCompound compound) {
-        String name = compound.getString("Name");
+        String name = compound.getString("Name", "minecraft:air");
         Identifier id = Identifier.of(name);
         Block block = Registries.BLOCK.get(id);
-        if (block == null || block == Blocks.AIR && !name.equals("minecraft:air")) {
+        if (block == null || (block == Blocks.AIR && !name.equals("minecraft:air"))) {
             return Blocks.AIR.getDefaultState();
         }
 
         BlockState state = block.getDefaultState();
-        if (compound.contains("Properties", NbtElement.COMPOUND_TYPE)) {
-            NbtCompound props = compound.getCompound("Properties");
+        if (compound.contains("Properties")) {
+            NbtCompound props = compound.getCompoundOrEmpty("Properties");
             for (String key : props.getKeys()) {
-                String val = props.getString(key);
+                String val = props.getString(key, "");
                 state = applyProperty(state, key, val);
             }
         }

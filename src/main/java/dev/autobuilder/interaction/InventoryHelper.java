@@ -76,7 +76,7 @@ public final class InventoryHelper {
             ItemStack stack = inv.getStack(slot);
             if (!stack.isEmpty() && stack.getItem() == targetItem) {
                 if (client.interactionManager != null) {
-                    int currentHotbar = inv.selectedSlot;
+                    int currentHotbar = inv.getSelectedSlot();
                     client.interactionManager.clickSlot(
                             player.playerScreenHandler.syncId,
                             slot,
@@ -97,7 +97,7 @@ public final class InventoryHelper {
         ClientPlayerEntity player = client.player;
         if (player == null || slot < 0 || slot >= 9) return;
 
-        player.getInventory().selectedSlot = slot;
+        player.getInventory().setSelectedSlot(slot);
         if (client.getNetworkHandler() != null) {
             client.getNetworkHandler().sendPacket(new UpdateSelectedSlotC2SPacket(slot));
         }

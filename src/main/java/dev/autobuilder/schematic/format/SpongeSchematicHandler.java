@@ -1,6 +1,5 @@
 package dev.autobuilder.schematic.format;
 
-import dev.autobuilder.AutoBuilder;
 import dev.autobuilder.schematic.Schematic;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -25,26 +24,26 @@ public class SpongeSchematicHandler implements ISchematicHandler {
 
     @Override
     public Schematic read(File file) throws IOException {
-        NbtCompound root = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimited());
-        NbtCompound data = root.contains("Schematic") ? root.getCompound("Schematic") : root;
+        NbtCompound root = NbtIo.readCompressed(file.toPath(), NbtSizeTracker.ofUnlimitedBytes());
+        NbtCompound data = root.contains("Schematic") ? root.getCompoundOrEmpty("Schematic") : root;
 
-        int width = data.getShort("Width") & 0xFFFF;
-        int height = data.getShort("Height") & 0xFFFF;
-        int length = data.getShort("Length") & 0xFFFF;
+        int width = data.getShort("Width", (short) 0) & 0xFFFF;
+        int height = data.getShort("Height", (short) 0) & 0xFFFF;
+        int length = data.getShort("Length", (short) 0) & 0xFFFF;
 
         String name = file.getName().replaceAll("(?i)\\.schem$", "");
         Schematic schematic = new Schematic(name, width, height, length);
 
-        NbtCompound paletteCompound = data.getCompound("Palette");
+        NbtCompound paletteCompound = data.getCompoundOrEmpty("Palette");
         Map<Integer, BlockState> paletteMap = new HashMap<>();
 
         for (String key : paletteCompound.getKeys()) {
-            int id = paletteCompound.getInt(key);
+            int id = paletteCompound.getInt(key, 0);
             BlockState state = parseBlockStateString(key);
             paletteMap.put(id, state);
         }
 
-        byte[] blockData = data.getByteArray("BlockData");
+        byte[] blockData = data.getByteArray("BlockData").orElse(new byte[0]);
         int blockIndex = 0;
         int byteIndex = 0;
         int totalBlocks = width * height * length;
@@ -69,16 +68,12 @@ public class SpongeSchematicHandler implements ISchematicHandler {
             blockIndex++;
         }
 
-        if (data.contains("BlockEntities", NbtElement.LIST_TYPE)) {
-            NbtList list = data.getList("BlockEntities", NbtElement.COMPOUND_TYPE);
-            for (int i = 0; i < list.size(); i++) {
-                NbtCompound beNbt = list.getCompound(i);
-                if (beNbt.contains("Pos", NbtElement.INT_ARRAY_TYPE)) {
-                    int[] pos = beNbt.getIntArray("Pos");
-                    if (pos.length == 3) {
-                        schematic.setBlockEntityNbt(pos[0], pos[1], pos[2], beNbt.copy());
-                    }
-                }
+        NbtList list = data.getListOrEmpty("BlockEntities");
+        for (int i = 0; i < list.size(); i++) {
+            NbtCompound beNbt = list.getCompoundOrEmpty(i);
+            int[] pos = beNbt.getIntArray("Pos").orElse(new int[0]);
+            if (pos.length == 3) {
+                schematic.setBlockEntityNbt(pos[0], pos[1], pos[2], beNbt.copy());
             }
         }
 
@@ -100,7 +95,6 @@ public class SpongeSchematicHandler implements ISchematicHandler {
         stateToId.put(Blocks.AIR.getDefaultState(), 0);
 
         int nextId = 1;
-        int totalBlocks = schematic.getWidth() * schematic.getHeight() * schematic.getLength();
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 
         for (int y = 0; y < schematic.getHeight(); y++) {
@@ -151,7 +145,7 @@ public class SpongeSchematicHandler implements ISchematicHandler {
             String blockId = bracketIndex == -1 ? str : str.substring(0, bracketIndex);
             Identifier id = Identifier.of(blockId);
             Block block = Registries.BLOCK.get(id);
-            if (block == null || block == Blocks.AIR && !blockId.equals("minecraft:air")) {
+            if (block == null || (block == Blocks.AIR && !blockId.equals("minecraft:air"))) {
                 return Blocks.AIR.getDefaultState();
             }
 

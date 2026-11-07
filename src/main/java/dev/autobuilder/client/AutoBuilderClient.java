@@ -15,7 +15,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -34,33 +34,35 @@ public class AutoBuilderClient implements ClientModInitializer {
     public void onInitializeClient() {
         ConfigManager.load();
 
+        KeyBinding.Category category = KeyBinding.Category.create("autobuilder");
+
         // Register keybindings
         openGuiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.autobuilder.open_gui",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_B,
-                "category.autobuilder"
+                category
         ));
 
         toggleBuildKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.autobuilder.toggle_build",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_K,
-                "category.autobuilder"
+                category
         ));
 
         setPos1Key = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.autobuilder.set_pos1",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_Z,
-                "category.autobuilder"
+                category
         ));
 
         setPos2Key = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.autobuilder.set_pos2",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_X,
-                "category.autobuilder"
+                category
         ));
 
         // Client Tick Event
@@ -98,7 +100,7 @@ public class AutoBuilderClient implements ClientModInitializer {
         });
 
         // World Rendering (selection box + hologram ghost preview)
-        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+        WorldRenderEvents.END_MAIN.register(context -> {
             SelectionRenderer.render(context);
             HologramRenderer.render(context);
         });

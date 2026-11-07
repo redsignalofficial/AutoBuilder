@@ -16,6 +16,8 @@ public class SchematicManagerScreen extends Screen {
     private final Screen parent;
     private List<File> files;
     private int selectedIndex = -1;
+    private int page = 0;
+    private static final int ITEMS_PER_PAGE = 5;
     private TextFieldWidget nameField;
 
     public SchematicManagerScreen(Screen parent) {
@@ -27,8 +29,44 @@ public class SchematicManagerScreen extends Screen {
     protected void init() {
         refreshFiles();
         int centerX = this.width / 2;
+        int listY = 40;
+        int btnW = 280;
+        int btnH = 20;
 
-        nameField = new TextFieldWidget(this.textRenderer, centerX - 150, this.height - 65, 140, 20, Text.literal("Name"));
+        // Render file list as buttons
+        int total = files.size();
+        int startIndex = page * ITEMS_PER_PAGE;
+        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, total);
+
+        for (int i = startIndex; i < endIndex; i++) {
+            final int index = i;
+            File f = files.get(i);
+            boolean isSelected = (index == selectedIndex);
+            String label = (isSelected ? "§b▶ " : "§7• ") + f.getName();
+
+            this.addDrawableChild(ButtonWidget.builder(Text.literal(label), btn -> {
+                this.selectedIndex = index;
+                this.clearAndInit();
+            }).dimensions(centerX - 140, listY + (i - startIndex) * 22, btnW, btnH).build());
+        }
+
+        // Pagination buttons
+        if (page > 0) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("◀ Prev"), btn -> {
+                page--;
+                this.clearAndInit();
+            }).dimensions(centerX - 140, listY + ITEMS_PER_PAGE * 22 + 4, 80, 18).build());
+        }
+
+        if (endIndex < total) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Next ▶"), btn -> {
+                page++;
+                this.clearAndInit();
+            }).dimensions(centerX + 60, listY + ITEMS_PER_PAGE * 22 + 4, 80, 18).build());
+        }
+
+        // Text field for saving
+        nameField = new TextFieldWidget(this.textRenderer, centerX - 140, this.height - 65, 140, 20, Text.literal("Name"));
         nameField.setPlaceholder(Text.literal("New schematic name..."));
         this.addDrawableChild(nameField);
 
@@ -43,7 +81,7 @@ public class SchematicManagerScreen extends Screen {
                     }
                 });
             }
-        }).dimensions(centerX + 2, this.height - 65, 148, 20).build());
+        }).dimensions(centerX + 5, this.height - 65, 135, 20).build());
 
         // Load button
         ButtonWidget loadBtn = ButtonWidget.builder(Text.literal("Load Selected"), btn -> {
@@ -59,7 +97,7 @@ public class SchematicManagerScreen extends Screen {
                     }
                 });
             }
-        }).dimensions(centerX - 150, this.height - 40, 95, 20).build();
+        }).dimensions(centerX - 140, this.height - 40, 90, 20).build();
         loadBtn.active = selectedIndex >= 0 && selectedIndex < files.size();
         this.addDrawableChild(loadBtn);
 
@@ -71,38 +109,18 @@ public class SchematicManagerScreen extends Screen {
                 selectedIndex = -1;
                 refreshFiles();
             }
-        }).dimensions(centerX - 50, this.height - 40, 95, 20).build();
+        }).dimensions(centerX - 45, this.height - 40, 90, 20).build();
         deleteBtn.active = selectedIndex >= 0 && selectedIndex < files.size();
         this.addDrawableChild(deleteBtn);
 
         // Back button
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Back"), btn -> {
             if (client != null) client.setScreen(parent);
-        }).dimensions(centerX + 50, this.height - 40, 100, 20).build());
+        }).dimensions(centerX + 50, this.height - 40, 90, 20).build());
     }
 
     private void refreshFiles() {
         this.files = SchematicManager.getInstance().listFiles();
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int centerX = this.width / 2;
-        int listX = centerX - 150;
-        int listY = 40;
-        int itemHeight = 16;
-
-        if (files != null) {
-            for (int i = 0; i < files.size(); i++) {
-                int itemY = listY + i * itemHeight;
-                if (mouseX >= listX && mouseX <= listX + 300 && mouseY >= itemY && mouseY < itemY + itemHeight) {
-                    this.selectedIndex = i;
-                    this.clearAndInit();
-                    return true;
-                }
-            }
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -112,29 +130,8 @@ public class SchematicManagerScreen extends Screen {
         int centerX = this.width / 2;
         context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("§b§lSchematic Manager"), centerX, 15, 0xFFFFFFFF);
 
-        int listX = centerX - 150;
-        int listY = 40;
-        int itemHeight = 16;
-        int listHeight = 120;
-
-        // List background
-        context.fill(listX - 2, listY - 2, listX + 302, listY + listHeight + 2, 0x90000000);
-
         if (files == null || files.isEmpty()) {
-            context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("§8No schematics found in directory"), centerX, listY + 50, 0xFFAAAAAA);
-        } else {
-            for (int i = 0; i < Math.min(files.size(), 7); i++) {
-                File f = files.get(i);
-                int itemY = listY + i * itemHeight;
-                boolean isSelected = (i == selectedIndex);
-
-                if (isSelected) {
-                    context.fill(listX, itemY, listX + 300, itemY + itemHeight, 0x6000CED1);
-                }
-
-                String prefix = isSelected ? "§b▶ " : "§7• ";
-                context.drawTextWithShadow(this.textRenderer, Text.literal(prefix + f.getName()), listX + 6, itemY + 4, 0xFFFFFFFF);
-            }
+            context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("§8No schematics found in directory"), centerX, 80, 0xFFAAAAAA);
         }
     }
 }

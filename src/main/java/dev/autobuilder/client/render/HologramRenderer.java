@@ -4,13 +4,12 @@ import dev.autobuilder.interaction.InventoryHelper;
 import dev.autobuilder.obstacle.ObstacleDetector;
 import dev.autobuilder.schematic.Schematic;
 import dev.autobuilder.schematic.SchematicManager;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
@@ -54,8 +53,8 @@ public class HologramRenderer {
         if (consumers == null) return;
 
         VertexConsumer linesConsumer = consumers.getBuffer(RenderLayer.getLines());
-        MatrixStack matrices = context.matrixStack();
-        Vec3d camPos = context.camera().getPos();
+        MatrixStack matrices = context.matrices();
+        Vec3d camPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
         ClientWorld world = MinecraftClient.getInstance().world;
         if (world == null) return;
 
@@ -69,7 +68,7 @@ public class HologramRenderer {
                 origin.getY() + schematic.getHeight(),
                 origin.getZ() + schematic.getLength()
         );
-        WorldRenderer.drawBox(matrices, linesConsumer, bounds, 0.9f, 0.3f, 0.9f, 0.8f);
+        SelectionRenderer.drawBoxLines(matrices, linesConsumer, bounds, 0.9f, 0.3f, 0.9f, 0.8f);
 
         // 2. Render blocks within nearby radius of camera
         int minX = Math.max(0, (int) (camPos.x - origin.getX() - MAX_RENDER_RADIUS));
@@ -104,7 +103,7 @@ public class HologramRenderer {
                     }
 
                     Box blockBox = new Box(worldPos);
-                    WorldRenderer.drawBox(matrices, linesConsumer, blockBox, r, g, b, a);
+                    SelectionRenderer.drawBoxLines(matrices, linesConsumer, blockBox, r, g, b, a);
                 }
             }
         }
