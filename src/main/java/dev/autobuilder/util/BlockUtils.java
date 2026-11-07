@@ -33,10 +33,7 @@ public final class BlockUtils {
                 || block instanceof DoorBlock
                 || block instanceof ButtonBlock
                 || block instanceof LeverBlock
-                || block instanceof RailBlock
-                || block instanceof DetectorRailBlock
-                || block instanceof PoweredRailBlock
-                || block instanceof ActivatorRailBlock
+                || block instanceof AbstractRailBlock
                 || block instanceof AbstractPressurePlateBlock;
     }
 

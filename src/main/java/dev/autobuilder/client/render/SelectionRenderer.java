@@ -28,9 +28,12 @@ public class SelectionRenderer {
         VertexConsumerProvider consumers = context.consumers();
         if (consumers == null) return;
 
-        VertexConsumer linesConsumer = consumers.getBuffer(RenderLayer.getLines());
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player == null) return;
+
+        VertexConsumer linesConsumer = consumers.getBuffer(RenderLayer.lines());
         MatrixStack matrices = context.matrices();
-        Vec3d camPos = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+        Vec3d camPos = mc.player.getEyePos();
 
         matrices.push();
         matrices.translate(-camPos.x, -camPos.y, -camPos.z);

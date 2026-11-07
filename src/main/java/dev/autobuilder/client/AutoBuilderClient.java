@@ -19,6 +19,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +35,7 @@ public class AutoBuilderClient implements ClientModInitializer {
     public void onInitializeClient() {
         ConfigManager.load();
 
-        KeyBinding.Category category = KeyBinding.Category.create("autobuilder");
+        KeyBinding.Category category = KeyBinding.Category.create(Identifier.of("autobuilder", "main"));
 
         // Register keybindings
         openGuiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
