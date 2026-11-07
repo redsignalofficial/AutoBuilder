@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "autobuilder",
+  "version": "${version}",
+  "name": "AutoBuilder",
+  "description": "Advanced automated building mod for Minecraft Fabric with smooth camera movement, schematic support, and safe interaction.",
+  "authors": [
+    "RedSignal"
+  ],
+  "contact": {
+    "homepage": "https://github.com/redsignalofficial/AutoBuilder",
+    "sources": "https://github.com/redsignalofficial/AutoBuilder"
+  },
+  "license": "MIT",
+  "icon": "assets/autobuilder/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.autobuilder.AutoBuilder"
+    ],
+    "client": [
+      "dev.autobuilder.client.AutoBuilderClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
