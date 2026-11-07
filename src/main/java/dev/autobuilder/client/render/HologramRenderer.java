@@ -7,7 +7,7 @@ import dev.autobuilder.schematic.SchematicManager;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -55,7 +55,7 @@ public class HologramRenderer {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
 
-        VertexConsumer linesConsumer = consumers.getBuffer(RenderLayer.LINES);
+        VertexConsumer linesConsumer = consumers.getBuffer(RenderLayers.lines());
         MatrixStack matrices = context.matrices();
         Vec3d camPos = mc.player.getEyePos();
         ClientWorld world = mc.world;
