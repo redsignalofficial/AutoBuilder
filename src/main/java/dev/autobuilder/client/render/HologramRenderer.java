@@ -55,7 +55,7 @@ public class HologramRenderer {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
 
-        VertexConsumer linesConsumer = consumers.getBuffer(RenderLayer.lines());
+        VertexConsumer linesConsumer = consumers.getBuffer(RenderLayer.LINES);
         MatrixStack matrices = context.matrices();
         Vec3d camPos = mc.player.getEyePos();
         ClientWorld world = mc.world;
